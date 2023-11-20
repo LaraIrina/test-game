@@ -203,7 +203,7 @@ function animate(){
     if (keys.right.pressed && player.position.x < 400){
         player.velocity.x = 5 //add movement to right when key is pressed
     }
-    else if (keys.left.pressed && player.position.x > 100){
+    else if ((keys.left.pressed && player.position.x > 100) || keys.left.pressed && scrollOffset === 0 && player.position.x > 0){
         player.velocity.x = -5 //movement to left side
     }
     //Monitor edges where player doesn't move anymore but platforms do
@@ -219,7 +219,7 @@ function animate(){
             hills.position.x -= 3 //slower to create a parallax scroll
 
         }
-        else if(keys.left.pressed){
+        else if(keys.left.pressed && scrollOffset > 0){
             platforms.forEach(platform => {
                 platform.position.x += 5 //move platform to left instead of player to right
                 scrollOffset -= 5 //remove pixels to the moved pixsels for win
