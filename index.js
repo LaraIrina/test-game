@@ -51,7 +51,7 @@ class Player {
 
 // Platform creation 
 class Platform {
-    constructor({x, y, image, width, height}) {
+    constructor({x, y, image, width, height, type}) {
         this.position = {
             x,
             y
@@ -59,6 +59,7 @@ class Platform {
         this.image = image
         this.width = width
         this.height = height
+        this.type = type
 
     }
     draw(){
@@ -96,11 +97,11 @@ function createImage(imageSrc){
 let platform_offset = 30
 let platformImageSrc = "./img/platform-small.png"
 let platformImage = createImage(platformImageSrc)
+let platform_tall_ImageSrc = "./img/platform-tall.png"
+let platform_tall_Image = createImage(platform_tall_ImageSrc)
 
-let platforms = [
-    new Platform({x: -10, y: 470+platform_offset, image:platformImage, width: 500, height:150}),
-    new Platform({x: 470, y: 470+platform_offset, image:platformImage, width: 500, height:150}),
-];
+
+let platforms = [];
 //Create Character
 let characterImageSrc = "./img/character.png"
 let player = new Player({x: -10, y: 470, image:createImage(characterImageSrc), width: 320, height:180})
@@ -132,17 +133,36 @@ const keys = {
 let scrollOffset = 0
 let pixelsToWin = 2000
 
-//Function to reset game when player falls in death pit
+//Function to reset (and start) game when player falls in death pit 
 function init(){
 
 //Create Platform
  platform_offset = 30
  platformImageSrc = "./img/platform-small.png"
  platformImage = createImage(platformImageSrc)
+ platform_tall_ImageSrc = "./img/platform-tall.png"
+ platform_tall_Image = createImage(platform_tall_ImageSrc)
+ const platform_size = 470
+
 
  platforms = [
-    new Platform({x: -10, y: 470+platform_offset, image:platformImage, width: 500, height:150}),
-    new Platform({x: 470, y: 470+platform_offset, image:platformImage, width: 500, height:150}),
+    //tall platforms
+    new Platform({x: platform_size+70, y: 470+platform_offset-170, image:platform_tall_Image, width: 500, height:270, type: 'tall'}),
+    new Platform({x: platform_size*3+70, y: 470+platform_offset-170, image:platform_tall_Image, width: 500, height:270, type: 'tall'}),
+    new Platform({x: platform_size*6+30, y: 470+platform_offset-170, image:platform_tall_Image, width: 800, height:270, type: 'tall'}),
+    new Platform({x: platform_size*7+100, y: 470+platform_offset-270, image:platform_tall_Image, width: 500, height:373, type: 'tall'}),
+
+
+
+    //small platformswwdd
+    new Platform({x: -10, y: 470+platform_offset, image:platformImage, width: 500, height:150, type: 'small'}),
+    new Platform({x: platform_size, y: 470+platform_offset, image:platformImage, width: 500, height:150, type: 'small'}),
+    new Platform({x: platform_size*2.5, y: 470+platform_offset, image:platformImage, width: 500, height:150, type: 'small'}),
+    new Platform({x: platform_size*3.5, y: 470+platform_offset, image:platformImage, width: 500, height:150, type: 'small'}),
+    new Platform({x: platform_size*4 + 70, y: 130+platform_offset, image:platformImage, width: 300, height:150, type: 'small'}),
+    new Platform({x: platform_size*5, y: 470+platform_offset, image:platformImage, width: 300, height:150, type: 'small'}),
+    new Platform({x: platform_size*6+60, y: 470+platform_offset, image:platformImage, width: 500, height:150, type: 'small'}),
+    new Platform({x: platform_size*9-50, y: 470+platform_offset, image:platformImage, width: 500, height:150, type: 'small'}),
 ];
 //Create Character
  characterImageSrc = "./img/character.png"
@@ -211,14 +231,27 @@ function animate(){
         }
     } 
     
-//Collision Detection with Platform
-    const offset_x = 150 //to make up for characters width
-    const offset_y = 60 //to make up for characters height
+  //Collision Detection with Platform
+    let offset_x = 150 //to make up for characters width
+    let offset_y = 60 //to make up for characters height
     platforms.forEach(platform => {
-    if (
-        player.position.y + player.height <= platform.position.y+offset_y && player.position.y + player.height + player.velocity.y >= platform.position.y+offset_y && player.position.x + player.width >= platform.position.x+offset_x && player.position.x <= platform.position.x-offset_x + platform.width){
-        player.velocity.y =  0 // stop moving when collision detected and player hits 'floor'
-    }})
+        let platform_offset_x = offset_x //to make up for characters width
+        let platform_offset_y = offset_y
+        if (platform.type === 'tall'){
+             platform_offset_x = 220 //to make up for characters width
+             platform_offset_y = 20 //to make up for characters height
+        }
+        if (
+            player.position.y + player.height <= platform.position.y+platform_offset_y &&
+            player.position.y + player.height + player.velocity.y >= platform.position.y+platform_offset_y &&
+            player.position.x + player.width >= platform.position.x+platform_offset_x &&
+            player.position.x <= platform.position.x-platform_offset_x + platform.width
+            ){
+                player.velocity.y =  0 // stop moving when collision detected and player hits 'floor'
+        }})
+        // Reset offsets to default values after the loop
+    offset_x = 150;
+    offset_y = 60;
 //Condition to win
     if(scrollOffset > pixelsToWin){
         console.log("You win!")
@@ -229,6 +262,7 @@ if(player.position.y > canvas.height){
     init() //reset everything
 }
 }
+init() //call init function to create objects
 animate() //call animate function
 
 //Listen for key presses for movements
@@ -238,16 +272,31 @@ addEventListener('keydown', ({keyCode})=>{
             console.log('left')
             keys.left.pressed = true
             break;
+        case 37:
+                console.log('left')
+                keys.left.pressed = true
+                break;
         case 83:
             console.log('down')
             break;
+        case 40:
+                console.log('down')
+                break;
         case 68:
                 console.log('right')
                 keys.right.pressed = true
                 break;
+        case 39:
+                    console.log('right')
+                    keys.right.pressed = true
+                    break;
         case 87:
                 console.log('up')
-                player.velocity.y -= 20 //minus as added velocity makes it fall down
+                player.velocity.y -= 15 //minus as added velocity makes it fall down
+                break;
+        case 38:
+                console.log('up')
+                player.velocity.y -= 15 //minus as added velocity makes it fall down
                 break;
         default:
             break;
@@ -261,15 +310,30 @@ addEventListener('keyup', ({keyCode})=>{
             console.log('left')
             keys.left.pressed = false
             break;
+        case 37:
+                console.log('left')
+                keys.left.pressed = false
+                break;
         case 83:
             console.log('down')
             break;
+        case 40:
+                console.log('down')
+                break;
         case 68:
                 console.log('right')
                 keys.right.pressed = false
                 break;
+        case 39:
+                    console.log('right')
+                    keys.right.pressed = false
+                    break;
         case 87:
                 console.log('up')
+                break;
+        case 38:
+                console.log('up')
+                player.velocity.y -= 0 //minus as added velocity makes it fall down
                 break;
         default:
             break;
